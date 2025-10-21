@@ -1,27 +1,31 @@
-const mongoose = require('mongoose')
+export const API_BASE = 'http://localhost:3000' // <- change if your backend runs elsewhere
 
-const entrySchema = new mongoose.Schema(
-  {
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
-    gameId: { type: mongoose.Schema.Types.ObjectId, ref: 'Game', required: true, index: true },
-    status: { type: String, required: true, enum: ['Playing', 'Finished', 'Wishlist'] },
-    dateStarted: { type: Date },
-    dateFinished: { type: Date },
-    notes: { type: String, maxlength: 1000, trim: true },
-    achievementsUnlocked: { type: Number, min: 0, default: 0 },
-  },
-  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
-)
+export async function searchGames(q = '') {
+  try {
+    const url = `${API_BASE}/api/games${q ? `?q=${encodeURIComponent(q)}` : ''}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.warn('searchGames failed, falling back to empty list', err);
+    return [];
+  }
+}
 
-entrySchema.index({ userId: 1, gameId: 1 }, { unique: true })
-
-entrySchema.virtual('progressPct').get(function () {
-  // best effort: if game populated with achievementCount
-  const game = this.gameId && this.gameId.achievementCount ? this.gameId : null
-  if (!game || !game.achievementCount || game.achievementCount <= 0) return 0
-  const pct = (this.achievementsUnlocked / game.achievementCount) * 100
-  return Math.max(0, Math.min(100, Math.round(pct * 100) / 100))
-})
-
-module.exports = mongoose.model('GameEntry', entrySchema)
-
+export async function createEntry(payload) {
+  try {
+    const res = await fetch(`${API_BASE}/api/entries`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => null);
+      throw new Error(`HTTP ${res.status} ${text || ''}`);
+    }
+    return await res.json();
+  } catch (err) {
+    console.warn('createEntry failed', err);
+    throw err;
+  }
+}
