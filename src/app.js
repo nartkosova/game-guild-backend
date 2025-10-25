@@ -25,6 +25,8 @@ function createApp() {
   app.use('/users', require('./routes/users.routes'))
   app.use('/games', require('./routes/games.routes'))
   app.use('/friends', require('./routes/friends.routes'))
+  app.use('/entries', require('./routes/gameEntry.routes'))
+  app.use('/leaderboard', require('./routes/leaderboard.routes'))
 
   app.use(notFound)
   app.use(errorHandler)

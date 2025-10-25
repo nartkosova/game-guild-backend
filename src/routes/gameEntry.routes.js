@@ -7,3 +7,5 @@ router.get('/', gameEntry.list)
 router.get('/:id', gameEntry.getById)
 router.patch('/:id', gameEntry.update)
 router.delete('/:id', gameEntry.remove)
+
+module.exports = router

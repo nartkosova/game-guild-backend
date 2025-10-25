@@ -23,5 +23,33 @@ entrySchema.virtual('progressPct').get(function () {
   return Math.max(0, Math.min(100, Math.round(pct * 100) / 100))
 })
 
-module.exports = mongoose.model('GameEntry', entrySchema)
+entrySchema.methods.toSafeJSON = function () {
+  const game = this.gameId && typeof this.gameId === 'object' && this.gameId._id
+    ? {
+        _id: this.gameId._id,
+        gameName: this.gameId.gameName,
+        platform: this.gameId.platform,
+        gameAvatarUrl: this.gameId.gameAvatarUrl,
+        achievementCount: this.gameId.achievementCount,
+        igdbId: this.gameId.igdbId,
+        createdAt: this.gameId.createdAt,
+        updatedAt: this.gameId.updatedAt,
+      }
+    : this.gameId
 
+  return {
+    _id: this._id,
+    userId: this.userId,
+    gameId: game,
+    status: this.status,
+    dateStarted: this.dateStarted || null,
+    dateFinished: this.dateFinished || null,
+    notes: this.notes || null,
+    achievementsUnlocked: this.achievementsUnlocked || 0,
+    progressPct: this.progressPct || 0,
+    createdAt: this.createdAt,
+    updatedAt: this.updatedAt,
+  }
+}
+
+module.exports = mongoose.model('GameEntry', entrySchema)

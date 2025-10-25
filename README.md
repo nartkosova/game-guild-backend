@@ -119,6 +119,11 @@ src/
 - PATCH `/games/:id`
 - DELETE `/games/:id`
 
+### Leaderboard (auth required)
+
+- GET `/leaderboard/global?limit=` — Top users by completed games
+- GET `/leaderboard/friends?limit=` — Current user plus friends ranked by completed games
+
 ## Sample Requests
 
 Register
